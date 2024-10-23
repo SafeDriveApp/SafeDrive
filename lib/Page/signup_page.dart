@@ -8,6 +8,9 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -89,9 +92,22 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     Text("Password"),
                     TextField(
+                      obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -99,30 +115,48 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     Text("Confirm Password"),
                     TextField(
+                      obscureText: !_isConfirmPasswordVisible,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Confirm Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isConfirmPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isConfirmPasswordVisible =
+                                  !_isConfirmPasswordVisible;
+                            });
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(
                       height: 20,
                     ),
                     Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle sign up action
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFFFD803), // Button color
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 15),
-                          textStyle: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600, // Semi-bold
-                            fontSize: 16,
+                      child: SizedBox(
+                        width: double
+                            .infinity, // Match the width of the input form
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle sign up action
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFFD803), // Button color
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            textStyle: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600, // Semi-bold
+                              fontSize: 16,
+                              color: Colors.black, // Text color
+                            ),
                           ),
+                          child: Text('SIGN UP'),
                         ),
-                        child: Text('SIGN UP'),
                       ),
                     ),
                     SizedBox(
