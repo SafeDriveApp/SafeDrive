@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:safe_drive/Page/forgot_password_page.dart'; // Pastikan sudah import halaman ForgotPasswordPage
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,8 +13,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       body: SizedBox(
         width: screenWidth,
         height: screenHeight,
@@ -26,10 +28,10 @@ class _LoginPageState extends State<LoginPage> {
               Center(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
-                  child: Container(
+                  child: const SizedBox(
                     width: 100,
                     height: 100,
-                    child: const Image(
+                    child: Image(
                       image: AssetImage("lib/source/image/Logo.png"),
                       fit: BoxFit.fill,
                     ),
@@ -40,43 +42,57 @@ class _LoginPageState extends State<LoginPage> {
                 height: screenHeight * 20 / 100,
               ),
               Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 2 / 100, 0, 0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Name"),
-                      SizedBox(
-                        height: 2,
+                padding: EdgeInsets.fromLTRB(0, screenWidth * 2 / 100, 0, 0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Name"),
+                    const SizedBox(height: 2),
+                    const TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'odin',
                       ),
-                      TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'odin',
+                    ),
+                    const SizedBox(height: 20),
+                    const Text("Email Address"),
+                    const TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Odin@gmail.com',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text("Password"),
+                    const TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Password',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Tambahkan tombol Forgot Password
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigasi ke halaman Forgot Password
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                          );
+                        },
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(color: Colors.blue),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text("Email Address"),
-                      TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Odin@gmail.com',
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text("Password"),
-                      TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Odin@gmail.com',
-                        ),
-                      ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
