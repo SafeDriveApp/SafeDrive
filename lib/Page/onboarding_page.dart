@@ -5,6 +5,7 @@ class OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFFFFFFF),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -33,8 +34,14 @@ class OnboardingPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/images/car.jpg', // Tambahkan gambar ilustrasi mobil sesuai gambar di atas
+                        'assets/img/car.jpg',
                         height: 200,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Text(
+                            'Image not found',
+                            style: TextStyle(color: Colors.red),
+                          );
+                        },
                       ),
                       SizedBox(height: 40),
                       Text(
