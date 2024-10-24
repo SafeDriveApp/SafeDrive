@@ -31,11 +31,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToHome() async {
-    await Future.delayed(Duration(seconds: 3), () {}); // Delay selama 3 detik
+    await Future.delayed(Duration(seconds: 1), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-          builder: (context) => SignupPage()), // Navigasi ke halaman login
+      MaterialPageRoute(builder: (context) => SignupPage()),
     );
   }
 
