@@ -1,4 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:safe_drive/Page/login_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -143,7 +146,12 @@ class _SignupPageState extends State<SignupPage> {
                             .infinity, // Match the width of the input form
                         child: ElevatedButton(
                           onPressed: () {
-                            // Handle sign up action
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      EmailVerificationPage()),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFFFD803), // Button color
@@ -163,13 +171,35 @@ class _SignupPageState extends State<SignupPage> {
                       height: 20,
                     ),
                     Center(
-                      child: Text(
-                        'Have an account already? Log In',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.normal,
-                          fontSize: 14,
-                          color: Color(0xFF272343),
+                      child: RichText(
+                        text: TextSpan(
+                          text: 'Have an account already? ',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.normal,
+                            fontSize: 14,
+                            color: Color(0xFF272343),
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Log In',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Color(0xFF272343),
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  // Navigate to LoginPage
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginPage()),
+                                  );
+                                },
+                            ),
+                          ],
                         ),
                       ),
                     ),
