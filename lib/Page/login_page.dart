@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/forgot_password_page.dart'; // Pastikan sudah import halaman ForgotPasswordPage
+import 'package:safe_drive/Page/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 100,
                     height: 100,
                     child: Image(
-                      image: AssetImage("lib/source/image/Logo.png"),
+                      image: AssetImage("assets/img/logo.png"),
                       fit: BoxFit.fill,
                     ),
                   ),
