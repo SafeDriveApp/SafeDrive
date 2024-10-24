@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/forgot_password_page.dart';
+import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/signup_page.dart'; // Import the ForgotPasswordPage
 
 class LoginPage extends StatefulWidget {
@@ -111,6 +112,11 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
+                      );
                       // Handle login action
                     },
                     style: ElevatedButton.styleFrom(
