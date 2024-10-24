@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/login_page.dart'; // Import halaman login
-import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/signup_page.dart';
 
 void main() {
