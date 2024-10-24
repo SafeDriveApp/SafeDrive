@@ -5,36 +5,27 @@ class OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFFFFFFF),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () {
-                    // Action untuk tombol Skip
-                  },
-                  child: Text(
-                    "Skip",
-                    style: TextStyle(
-                      color: Colors.yellow[700],
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
               Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/images/car.jpg', // Tambahkan gambar ilustrasi mobil sesuai gambar di atas
+                        'assets/img/car.jpg',
                         height: 200,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Text(
+                            'Image not found',
+                            style: TextStyle(color: Colors.red),
+                          );
+                        },
                       ),
                       SizedBox(height: 40),
                       Text(
