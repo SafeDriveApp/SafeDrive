@@ -34,7 +34,7 @@ class _SignupPageState extends State<SignupPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 200, // Increased width
                         height: 110, // Increased height
                         child: const Image(
