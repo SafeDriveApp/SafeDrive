@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(), // Set halaman splash screen sebagai halaman awal
+      home: SignupPage(),
     );
   }
 }
@@ -43,8 +43,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child:
-            Image.asset('assets/logo.png'), // Gambar logo untuk splash screen
+        child: Image.asset(
+            'assets/img/logo.png'), // Gambar logo untuk splash screen
       ),
     );
   }
