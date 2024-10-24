@@ -36,9 +36,9 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       Container(
                         width: 200, // Increased width
-                        height: 200, // Increased height
+                        height: 130, // Increased height
                         child: const Image(
-                          image: AssetImage("assets/logo.png"),
+                          image: AssetImage("assets/img/logo.png"),
                           fit: BoxFit.fill,
                         ),
                       ),
