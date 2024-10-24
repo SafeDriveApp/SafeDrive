@@ -12,22 +12,6 @@ class OnboardingPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () {
-                    // Action untuk tombol Skip
-                  },
-                  child: Text(
-                    "Skip",
-                    style: TextStyle(
-                      color: Colors.yellow[700],
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
               Expanded(
                 child: Center(
                   child: Column(
