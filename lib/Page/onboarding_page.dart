@@ -20,12 +20,6 @@ class OnboardingPage extends StatelessWidget {
                       Image.asset(
                         'assets/img/car.jpg',
                         height: 200,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Text(
-                            'Image not found',
-                            style: TextStyle(color: Colors.red),
-                          );
-                        },
                       ),
                       SizedBox(height: 40),
                       Text(
