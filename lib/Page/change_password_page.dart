@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:safe_drive/Page/profile_page.dart';
+import 'package:safe_drive/Page/update_profile_page.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -26,15 +28,41 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(height: screenHeight * 10 / 100),
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UpdateProfilePage()),
+                        ); // Navigate back to the previous page
+                      },
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Change Password',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Color(0xFF272343),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               Center(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Change Password',
-                      ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth *
@@ -129,7 +157,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EmailVerificationPage()),
+                                                ProfilePage()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
