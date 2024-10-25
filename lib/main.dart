@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
+import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/signup_page.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ProfilePage(),
+      home: HomePage(),
     );
   }
 }
