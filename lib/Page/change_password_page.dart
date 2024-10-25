@@ -11,7 +11,7 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPage extends State<ChangePasswordPage> {
-  bool _isPasswordVisible = false;
+  final bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
   @override

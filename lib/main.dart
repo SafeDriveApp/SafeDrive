@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/signup_page.dart';
+import 'package:safe_drive/Page/onboarding_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -41,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(seconds: 1), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SignupPage()),
+      MaterialPageRoute(builder: (context) => OnboardingPage()),
     );
   }
 
@@ -50,8 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-            'assets/img/logo.png'),
+        child: Image.asset('assets/img/logo.png'),
       ),
     );
   }

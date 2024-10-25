@@ -11,10 +11,10 @@ class UpdateProfilePage extends StatefulWidget {
 
 class _UpdateProfilePageState extends State<UpdateProfilePage> {
   String? _selectedItem; // Variabel untuk item yang dipilih
-  List<String> _dropdownItems = ['Male', 'Female'];
+  final List<String> _dropdownItems = ['Male', 'Female'];
 
   DateTime? _selectedDate; // Variabel untuk menyimpan tanggal yang dipilih
-  TextEditingController _dateController =
+  final TextEditingController _dateController =
       TextEditingController(); // Controller untuk menampilkan tanggal di TextField
 
   // Fungsi untuk menampilkan date picker
