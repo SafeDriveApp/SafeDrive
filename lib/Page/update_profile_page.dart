@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:safe_drive/Page/profile_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -37,7 +38,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
@@ -47,15 +48,41 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(height: screenHeight * 10 / 100),
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ProfilePage()),
+                        ); // Navigate back to the previous page
+                      },
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Update Profil',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Color(0xFF272343),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               Center(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
+                  padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Profile',
-                      ),
                       SizedBox(height: 50),
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -122,8 +149,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              EmailVerificationPage()),
+                                          builder: (context) => ProfilePage()),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(

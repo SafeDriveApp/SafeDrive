@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:safe_drive/Page/update_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -18,15 +19,41 @@ class ProfilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(height: screenHeight * 10 / 100),
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ProfilePage()),
+                        ); // Navigate back to the previous page
+                      },
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Profil',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Color(0xFF272343),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               Center(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
+                  padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Profile',
-                      ),
                       SizedBox(height: 50),
                       SizedBox(
                         width: 200, // Increased width
@@ -102,7 +129,7 @@ class ProfilePage extends StatelessWidget {
                             TextField(
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'L',
+                                hintText: '12-12-1999',
                               ),
                             ),
                             SizedBox(
@@ -120,7 +147,7 @@ class ProfilePage extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EmailVerificationPage()),
+                                                UpdateProfilePage()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -149,7 +176,7 @@ class ProfilePage extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EmailVerificationPage()),
+                                                UpdateProfilePage()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -165,7 +192,7 @@ class ProfilePage extends StatelessWidget {
                                         color: Colors.black, // Text color
                                       ),
                                     ),
-                                    child: Text('Update Profile'),
+                                    child: Text('Change Password'),
                                   ),
                                 ),
                               ],
