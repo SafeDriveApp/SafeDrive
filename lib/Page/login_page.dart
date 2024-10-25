@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/forgot_password_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
-import 'package:safe_drive/Page/signup_page.dart'; // Import the ForgotPasswordPage
+import 'package:safe_drive/Page/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,14 +29,32 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               SizedBox(height: screenHeight * 10 / 100),
               Center(
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    color: Color(0xFF272343),
-                  ),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/img/logo.png', // Path to your logo image
+                      height: 100, // Adjust the height as needed
+                    ),
+                    SizedBox(height: 10), // Space between image and text
+                    Text(
+                      'Welcome Back!',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFF272343),
+                      ),
+                    ),
+                    Text(
+                      'Login to continue',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        fontSize: 18,
+                        color: Color(0xFF272343),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: screenHeight * 5 / 100),

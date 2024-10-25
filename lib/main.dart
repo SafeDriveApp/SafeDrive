@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
-import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/signup_page.dart';
-import 'package:safe_drive/Page/profile_page.dart';
-import 'package:safe_drive/Page/update_profile_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: ProfilePage(),
     );
   }
 }
@@ -53,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Colors.white,
       body: Center(
         child: Image.asset(
-            'assets/img/logo.png'), // Gambar logo untuk splash screen
+            'assets/img/logo.png'),
       ),
     );
   }
