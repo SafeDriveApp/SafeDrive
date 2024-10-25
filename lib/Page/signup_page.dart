@@ -21,7 +21,6 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
-        // Added SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(1),
           child: Column(
@@ -35,8 +34,7 @@ class _SignupPageState extends State<SignupPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
-                        width: 200, // Increased width
-                        height: 110, // Increased height
+                        height: 100, // Increased height
                         child: const Image(
                           image: AssetImage("assets/img/logo.png"),
                           fit: BoxFit.fill,
