@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/signup_page.dart';
+import 'package:safe_drive/Page/onboarding_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(seconds: 1), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SignupPage()),
+      MaterialPageRoute(builder: (context) => OnboardingPage()),
     );
   }
 
