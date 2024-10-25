@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/signup_page.dart';
 
 class OnboardingPage extends StatelessWidget {
+  const OnboardingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
