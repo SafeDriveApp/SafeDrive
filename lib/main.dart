@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/camera_page.dart';
+import 'package:safe_drive/Page/change_password_page.dart';
+import 'package:safe_drive/Page/profile_page.dart';
+import 'package:safe_drive/Page/signup_page.dart';
 import 'package:safe_drive/Page/onboarding_page.dart';
 
 void main() {
