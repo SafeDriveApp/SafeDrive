@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/signup_page.dart';
+import 'package:safe_drive/Page/login_page.dart';
 
 class OnboardingPage extends StatelessWidget {
+  const OnboardingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +49,7 @@ class OnboardingPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
+                    MaterialPageRoute(builder: (context) => LoginPage()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

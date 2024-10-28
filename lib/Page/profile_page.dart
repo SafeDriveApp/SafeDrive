@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -31,7 +32,7 @@ class ProfilePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ProfilePage()),
+                              builder: (context) => const HomePage()),
                         ); // Navigate back to the previous page
                       },
                     ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/change_password_page.dart';
-import 'package:safe_drive/Page/signup_page.dart';
-import 'package:safe_drive/Page/profile_page.dart';
-import 'package:safe_drive/Page/update_profile_page.dart';
+import 'package:safe_drive/Page/camera_page.dart';
+import 'package:safe_drive/Page/onboarding_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ProfilePage(),
+      home: OnboardingPage(),
     );
   }
 }
@@ -42,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(seconds: 1), () {});
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SignupPage()),
+      MaterialPageRoute(builder: (context) => OnboardingPage()),
     );
   }
 
@@ -51,8 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-            'assets/img/logo.png'), // Gambar logo untuk splash screen
+        child: Image.asset('assets/img/logo.png'),
       ),
     );
   }
