@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {

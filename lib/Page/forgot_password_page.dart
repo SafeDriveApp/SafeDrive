@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/login_page.dart';
+import 'package:safe_drive/Page/reset_password_page.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -76,7 +77,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle password recovery
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ResetPasswordPage()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFD803), // Button color
