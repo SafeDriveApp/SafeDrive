@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/camera_page.dart';
+import 'package:camera/camera.dart'; // Add this import statement
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,13 +12,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late Future<List<CameraDescription>> _initializeCameraFuture;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home Page',
-        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
-    CameraPage(), // Placeholder for CameraPage
-    ProfilePage(), // Placeholder for ProfilePage
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _initializeCameraFuture = _initializeCamera();
+  }
+
+  Future<List<CameraDescription>> _initializeCamera() async {
+    return await availableCameras();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -31,8 +36,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      body: FutureBuilder<List<CameraDescription>>(
+        future: _initializeCameraFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              final cameras = snapshot.data!;
+              return _widgetOptions(cameras).elementAt(_selectedIndex);
+            } else {
+              return Center(child: Text('Failed to load cameras'));
+            }
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -55,4 +72,11 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  List<Widget> _widgetOptions(List<CameraDescription> cameras) => <Widget>[
+        Text('Home Page',
+            style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+        CameraPage(cameras: cameras), // Provide the required cameras parameter
+        ProfilePage(), // Placeholder for ProfilePage
+      ];
 }
