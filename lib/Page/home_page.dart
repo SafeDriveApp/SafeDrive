@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/camera_page.dart';
-import 'package:camera/camera.dart'; // Add this import statement
+import 'package:camera/camera.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,9 +33,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
       body: FutureBuilder<List<CameraDescription>>(
         future: _initializeCameraFuture,
         builder: (context, snapshot) {
@@ -74,9 +71,75 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Widget> _widgetOptions(List<CameraDescription> cameras) => <Widget>[
-        Text('Home Page',
-            style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+        HomeContent(),
         CameraPage(cameras: cameras), // Provide the required cameras parameter
         ProfilePage(), // Placeholder for ProfilePage
       ];
+}
+
+class HomeContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 40),
+          Text(
+            'Welcome, [User Name]',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Driving Statistics',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          // Placeholder for statistics
+          Container(
+            height: 200,
+            color: Colors.grey[200],
+            child: Center(child: Text('Statistics Graph')),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Current Location',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          // Placeholder for map
+          Container(
+            height: 200,
+            color: Colors.grey[200],
+            child: Center(child: Text('Map Placeholder')),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Safety Tips',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 1: Take regular breaks'),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 2: Stay hydrated'),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 3: Avoid heavy meals before driving'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
