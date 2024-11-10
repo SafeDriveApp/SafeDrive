@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/camera_page.dart';
 import 'package:camera/camera.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,7 +79,59 @@ class _HomePageState extends State<HomePage> {
       ];
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  Position? _currentPosition;
+  late GoogleMapController _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // Get the current location
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _currentPosition = position;
+    });
+
+    // Move the map camera to the current location
+    _mapController.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(position.latitude, position.longitude),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -85,10 +139,18 @@ class HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 40),
+          SizedBox(height: 40), // Add space at the top
           Text(
             'Welcome, [User Name]',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.warning, color: Colors.red),
+              title: Text('Drowsiness Detected!'),
+              subtitle: Text('Please take a break.'),
+            ),
           ),
           SizedBox(height: 20),
           Text(
@@ -108,11 +170,26 @@ class HomeContent extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
-          // Placeholder for map
+          // Map to show current location
           Container(
             height: 200,
             color: Colors.grey[200],
-            child: Center(child: Text('Map Placeholder')),
+            child: _currentPosition == null
+                ? Center(child: CircularProgressIndicator())
+                : GoogleMap(
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ),
+                      zoom: 14.0,
+                    ),
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                  ),
           ),
           SizedBox(height: 20),
           Text(

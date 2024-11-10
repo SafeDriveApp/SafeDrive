@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/onboarding_page.dart';
 
 late List<CameraDescription> cameras;
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         fontFamily: 'Poppins',
       ),
-      home: HomePage(),
+      home: OnboardingPage(),
     );
   }
 }
