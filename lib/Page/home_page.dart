@@ -85,8 +85,8 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
+  GoogleMapController? _mapController;
   Position? _currentPosition;
-  late GoogleMapController _mapController;
 
   @override
   void initState() {
@@ -125,11 +125,13 @@ class _HomeContentState extends State<HomeContent> {
     });
 
     // Move the map camera to the current location
-    _mapController.animateCamera(
-      CameraUpdate.newLatLng(
-        LatLng(position.latitude, position.longitude),
-      ),
-    );
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(position.latitude, position.longitude),
+        ),
+      );
+    }
   }
 
   @override
@@ -179,6 +181,17 @@ class _HomeContentState extends State<HomeContent> {
                 : GoogleMap(
                     onMapCreated: (controller) {
                       _mapController = controller;
+                      // Move the map camera to the current location
+                      if (_currentPosition != null) {
+                        _mapController!.animateCamera(
+                          CameraUpdate.newLatLng(
+                            LatLng(
+                              _currentPosition!.latitude,
+                              _currentPosition!.longitude,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     initialCameraPosition: CameraPosition(
                       target: LatLng(
