@@ -1,64 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:camera_web/camera_web.dart';
-import 'package:safe_drive/Page/home_page.dart';
-
-late List<CameraDescription> _cameras;
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  _cameras = await availableCameras();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const CameraPage(),
-    );
-  }
-}
+import 'package:safe_drive/Page/display_picture_page.dart';
+import 'dart:math' as math;
 
 class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
+  final List<CameraDescription> cameras;
+
+  const CameraPage({super.key, required this.cameras});
+
   @override
   State<CameraPage> createState() => _CameraPageState();
 }
 
 class _CameraPageState extends State<CameraPage> {
-  late CameraController controller;
-  late Future<void> initializeControllerFuture;
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(_cameras[0], ResolutionPreset.max);
-    initializeControllerFuture = controller.initialize();
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    }).catchError((Object e) {
-      if (e is CameraException) {
-        switch (e.code) {
-          case 'CameraAccessDenied':
-            // Handle access errors here.
-            break;
-          default:
-            // Handle other errors here.
-            break;
-        }
-      }
-    });
+    // Identifikasi kamera depan
+    final frontCamera = widget.cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.front,
+    );
+    // Inisialisasi CameraController dengan kamera depan
+    _controller = CameraController(
+      frontCamera,
+      ResolutionPreset.high,
+    );
+    _initializeControllerFuture = _controller.initialize();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -66,17 +41,47 @@ class _CameraPageState extends State<CameraPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Camera Page'),
+        title: Text('Camera Page'),
       ),
       body: FutureBuilder<void>(
-        future: initializeControllerFuture, // Menggunakan FutureBuilder
+        future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            // Jika kamera berhasil diinisialisasi, tampilkan preview
-            return CameraPreview(controller);
+            return Stack(
+              children: [
+                Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(math.pi),
+                  child: CameraPreview(_controller),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: FloatingActionButton(
+                      onPressed: () async {
+                        try {
+                          await _initializeControllerFuture;
+                          final image = await _controller.takePicture();
+                          if (!mounted) return;
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DisplayPictureScreen(imagePath: image.path),
+                            ),
+                          );
+                        } catch (e) {
+                          print(e);
+                        }
+                      },
+                      child: Icon(Icons.camera_alt),
+                    ),
+                  ),
+                ),
+              ],
+            );
           } else {
-            // Jika belum, tampilkan loading spinner
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
         },
       ),

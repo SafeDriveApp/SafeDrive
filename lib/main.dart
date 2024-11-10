@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/change_password_page.dart';
-import 'package:safe_drive/Page/profile_page.dart';
-import 'package:safe_drive/Page/signup_page.dart';
+import 'package:camera/camera.dart';
 import 'package:safe_drive/Page/onboarding_page.dart';
 
-void main() {
+late List<CameraDescription> cameras;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   runApp(MyApp());
 }
 
@@ -18,6 +20,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'Poppins',
       ),
       home: OnboardingPage(),
     );
