@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'login_page.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
 
+  Future<void> _resetPassword() async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: _emailController.text.trim(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send password reset email: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
@@ -34,7 +51,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const LoginPage()),
-                      ); // Navigate back to the previous page
+                      );
                     },
                   ),
                   Expanded(
@@ -52,7 +69,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 5 / 100),
+              SizedBox(height: 20),
               Text(
                 'Enter your email address to recover your password:',
                 style: TextStyle(
@@ -75,9 +92,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle password recovery
-                    },
+                    onPressed: _resetPassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFD803), // Button color
                       padding: EdgeInsets.symmetric(vertical: 15),
