@@ -1,11 +1,35 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
+import 'package:safe_drive/data_user.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Map<String, dynamic>? userProfile;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    userProfile = await DataUser().getUserProfile(uid);
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +91,10 @@ class ProfilePage extends StatelessWidget {
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
-                        'Odin Allfather',
+                        // decoration: InputDecoration(
+                        //   labelText: 'odin tralala',
+                        // ),
+                        userProfile?['name'] ?? 'Loading...',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
@@ -76,7 +103,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'email@gmail.com',
+                        userProfile?['email'] ?? 'Loading...',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
@@ -99,9 +126,10 @@ class ProfilePage extends StatelessWidget {
                               height: 2,
                             ),
                             TextField(
+                              controller: TextEditingController(
+                                  text: userProfile?['name']),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'odin',
                               ),
                             ),
                             SizedBox(
@@ -109,9 +137,10 @@ class ProfilePage extends StatelessWidget {
                             ),
                             Text("Email Address"),
                             TextField(
+                              controller: TextEditingController(
+                                  text: userProfile?['email']),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Odin@gmail.com',
                               ),
                             ),
                             SizedBox(

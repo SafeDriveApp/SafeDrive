@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "92060340726",
+    "project_id": "save-drive-d793b",
+    "storage_bucket": "save-drive-d793b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92060340726:android:d67be859321b74548e77d7",
+        "android_client_info": {
+          "package_name": "com.example.safe_drive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEB50av8YrmB_KscCYUretbjNFmCXl1CQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
