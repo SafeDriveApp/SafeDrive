@@ -30,11 +30,15 @@ class DisplayPictureScreen extends StatelessWidget {
         return;
       }
 
+      // Create a unique file name using timestamp
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
       // Create a reference to the Firebase Storage
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('user_images')
-          .child('${user.uid}.jpg');
+          .child(user.uid)
+          .child(fileName);
 
       // Upload the file to Firebase Storage
       await storageRef.putFile(file);
@@ -42,18 +46,12 @@ class DisplayPictureScreen extends StatelessWidget {
       // Get the download URL
       final downloadURL = await storageRef.getDownloadURL();
 
-      // Check if the document exists
+      // Save the download URL to Firestore
       final userDocRef =
           FirebaseFirestore.instance.collection('users').doc(user.uid);
-      final userDoc = await userDocRef.get();
-
-      if (userDoc.exists) {
-        // Update the document if it exists
-        await userDocRef.update({'profile_picture': downloadURL});
-      } else {
-        // Create the document if it does not exist
-        await userDocRef.set({'profile_picture': downloadURL});
-      }
+      await userDocRef.update({
+        'profile_pictures': FieldValue.arrayUnion([downloadURL])
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Picture uploaded successfully')),
