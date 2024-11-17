@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
+import 'package:safe_drive/auth_service.dart';
 import 'package:safe_drive/data_user.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -15,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userProfile;
+
   bool isLoading = true;
 
   @override
@@ -24,17 +27,48 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchUserProfile() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    userProfile = await DataUser().getUserProfile(uid);
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      String email = FirebaseAuth.instance.currentUser!.email!;
+      Map<String, dynamic>? fetchedUserProfile =
+          await AuthService().getUserProfile(email);
+
+      // Tambahkan logika untuk mengambil URL gambar profil
+      // final user = FirebaseAuth.instance.currentUser!;
+      // DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      //     .collection('users')
+      //     .doc(user.uid)
+      //     .get();
+      // String? profileImageUrl = userDoc['profile_image_url'];
+
+      setState(() {
+        userProfile = fetchedUserProfile;
+        isLoading = false;
+      });
+
+      // Cetak isi userProfile ke console untuk debugging
+      print("Isi userProfile: $userProfile");
+      print('Current User UID: ${FirebaseAuth.instance.currentUser?.uid}');
+    } catch (e) {
+      print("Error fetching user profile: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(), // Indikator loading
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
@@ -76,25 +110,36 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Center(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
+                  // padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
+                  // child: Column(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   children: [
+                  //     SizedBox(height: 50),
+                  //     SizedBox(
+                  //       width: 200, // Increased width
+                  //       height: 110, // Increased height
+                  //       child: const Image(
+                  //         image: AssetImage("assets/img/logo.png"),
+                  //         fit: BoxFit.fill,
+                  //       ),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(height: 50),
-                      SizedBox(
-                        width: 200, // Increased width
-                        height: 110, // Increased height
-                        child: const Image(
-                          image: AssetImage("assets/img/logo.png"),
-                          fit: BoxFit.fill,
-                        ),
+                      // Tambahkan Gambar Profil
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: userProfile?['profile_image_url'] !=
+                                null
+                            ? NetworkImage(userProfile!['profile_image_url'])
+                            : AssetImage("assets/img/default_avatar.png")
+                                as ImageProvider,
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
                         // decoration: InputDecoration(
                         //   labelText: 'odin tralala',
                         // ),
-                        userProfile?['name'] ?? 'Loading...',
+                        userProfile?['name'] ?? 'tidak',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
@@ -125,43 +170,36 @@ class _ProfilePageState extends State<ProfilePage> {
                             SizedBox(
                               height: 2,
                             ),
-                            TextField(
-                              controller: TextEditingController(
-                                  text: userProfile?['name']),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                userProfile?['name'] ?? ' Tidak tersedia',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
+                              tileColor: Colors.grey.shade200,
                             ),
                             SizedBox(
                               height: 20,
                             ),
                             Text("Email Address"),
-                            TextField(
-                              controller: TextEditingController(
-                                  text: userProfile?['email']),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                userProfile?['email'] ?? ' Apaan Tuh',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
+                              tileColor: Colors.grey.shade200,
                             ),
                             SizedBox(
                               height: 20,
-                            ),
-                            Text("Gender"),
-                            TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'L',
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text("Date Of Birth"),
-                            TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '12-12-1999',
-                              ),
                             ),
                             SizedBox(
                               height: 20,

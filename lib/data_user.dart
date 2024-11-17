@@ -1,20 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DataUser {
-  Future<Map<String, dynamic>?> getUserProfile(String uid) async {
+Future<Map<String, dynamic>?> getUserProfile(String email) async {
   try {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentSnapshot userDoc = await firestore.collection('users').doc(uid).get();
-    if (userDoc.exists) {
-      return userDoc.data() as Map<String, dynamic>?;
-    } else {
-      print("User data not found");
-      return null;
+    // Cari dokumen pengguna berdasarkan email
+    QuerySnapshot snapshot = await firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      // Mengambil data pengguna dari dokumen pertama
+      return snapshot.docs[0].data() as Map<String, dynamic>;
     }
+    return null; // Jika tidak ada data ditemukan
   } catch (e) {
-    print("Error getting user profile: $e");
+    print('Error fetching user profile: $e');
     return null;
   }
-}
-
 }
