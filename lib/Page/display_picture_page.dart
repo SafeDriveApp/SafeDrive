@@ -81,6 +81,9 @@ class DisplayPictureScreen extends StatelessWidget {
               onPressed: () => _uploadPicture(context),
               child: Text('Upload Picture'),
             ),
+            SizedBox(
+              height: 20,
+            )
           ],
         ),
       ),
