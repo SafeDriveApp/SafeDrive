@@ -5,12 +5,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math' as math;
 
-class DisplayPictureScreen extends StatelessWidget {
+class DisplayPictureScreen extends StatefulWidget {
   final String imagePath;
 
   const DisplayPictureScreen({super.key, required this.imagePath});
 
+  @override
+  _DisplayPictureScreenState createState() => _DisplayPictureScreenState();
+}
+
+class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
+  bool _isLoading = false;
+
   Future<void> _uploadPicture(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       // Get the current user
       final user = FirebaseAuth.instance.currentUser;
@@ -18,15 +29,21 @@ class DisplayPictureScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No user is signed in')),
         );
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
 
       // Verify that the file exists
-      final file = File(imagePath);
+      final file = File(widget.imagePath);
       if (!file.existsSync()) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('File does not exist')),
         );
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
 
@@ -60,6 +77,10 @@ class DisplayPictureScreen extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload picture: $e')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -74,16 +95,16 @@ class DisplayPictureScreen extends StatelessWidget {
             Transform(
               alignment: Alignment.center,
               transform: Matrix4.rotationY(math.pi),
-              child: Image.file(File(imagePath)),
+              child: Image.file(File(widget.imagePath)),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _uploadPicture(context),
-              child: Text('Upload Picture'),
-            ),
-            SizedBox(
-              height: 20,
-            )
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: () => _uploadPicture(context),
+                    child: Text('Upload Picture'),
+                  ),
+            SizedBox(height: 20),
           ],
         ),
       ),
