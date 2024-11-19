@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:safe_drive/Page/profile_page.dart';
-import 'package:safe_drive/Page/update_profile_page.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -11,7 +10,12 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPage extends State<ChangePasswordPage> {
-  final bool _isPasswordVisible = false;
+  final _oldPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  bool _isOldPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
   @override
@@ -21,12 +25,10 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
-        // Added SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(height: screenHeight * 10 / 100),
               Stack(
@@ -39,8 +41,8 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const UpdateProfilePage()),
-                        ); // Navigate back to the previous page
+                              builder: (context) => const ProfilePage()),
+                        );
                       },
                     ),
                   ),
@@ -57,138 +59,163 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                   ),
                 ],
               ),
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth *
-                                5 /
-                                100), // Added padding to left and right
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 2,
-                            ),
-                            Text("Old Password"),
-                            TextField(
-                              obscureText: !_isConfirmPasswordVisible,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '**********',
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _isConfirmPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isConfirmPasswordVisible =
-                                          !_isConfirmPasswordVisible;
-                                    });
-                                  },
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, screenWidth * 20 / 100, 0, 0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 5 / 100),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 2),
+                          Text("Old Password"),
+                          TextField(
+                            controller: _oldPasswordController,
+                            obscureText: !_isOldPasswordVisible,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '**********',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isOldPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isOldPasswordVisible =
+                                        !_isOldPasswordVisible;
+                                  });
+                                },
                               ),
                             ),
-                            Text("New Password"),
-                            TextField(
-                              obscureText: !_isConfirmPasswordVisible,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '**********',
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _isConfirmPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isConfirmPasswordVisible =
-                                          !_isConfirmPasswordVisible;
-                                    });
-                                  },
+                          ),
+                          SizedBox(height: 10),
+                          Text("New Password"),
+                          TextField(
+                            controller: _newPasswordController,
+                            obscureText: !_isNewPasswordVisible,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '**********',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isNewPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isNewPasswordVisible =
+                                        !_isNewPasswordVisible;
+                                  });
+                                },
                               ),
                             ),
-                            Text("Confirm New Password"),
-                            TextField(
-                              obscureText: !_isConfirmPasswordVisible,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '**********',
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _isConfirmPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isConfirmPasswordVisible =
-                                          !_isConfirmPasswordVisible;
-                                    });
-                                  },
+                          ),
+                          SizedBox(height: 10),
+                          Text("Confirm New Password"),
+                          TextField(
+                            controller: _confirmPasswordController,
+                            obscureText: !_isConfirmPasswordVisible,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '**********',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isConfirmPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isConfirmPasswordVisible =
+                                        !_isConfirmPasswordVisible;
+                                  });
+                                },
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Center(
-                                child: Column(
-                              children: [
-                                Padding(padding: EdgeInsets.all(5)),
-                                SizedBox(
-                                  width:
-                                      200, // Match the width of the input form
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePage()),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color(0xFFFFD803), // Button color
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 20),
-                                      textStyle: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight:
-                                            FontWeight.w600, // Semi-bold
-                                        fontSize: 16,
-                                        color: Colors.black, // Text color
-                                      ),
-                                    ),
-                                    child: Text('Submit'),
+                          ),
+                          SizedBox(height: 20),
+                          Center(
+                            child: SizedBox(
+                              width: 200,
+                              child: ElevatedButton(
+                                onPressed: _changePassword,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFFFD803),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
+                                  textStyle: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black,
                                   ),
                                 ),
-                              ],
-                            )),
-                          ],
-                        ),
+                                child: Text('Submit'),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _changePassword() async {
+    final oldPassword = _oldPasswordController.text;
+    final newPassword = _newPasswordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (newPassword != confirmPassword) {
+      _showErrorSnackbar("New passwords do not match!");
+      return;
+    }
+
+    try {
+      // 1. Verifikasi password lama
+      User? user = FirebaseAuth.instance.currentUser;
+      AuthCredential credentials = EmailAuthProvider.credential(
+        email: user!.email!,
+        password: oldPassword,
+      );
+      await user.reauthenticateWithCredential(credentials);
+
+      // 2. Perbarui password
+      await user.updatePassword(newPassword);
+
+      // 3. Beri tahu pengguna bahwa password telah berhasil diperbarui
+      _showSuccessSnackbar("Password updated successfully!");
+
+      // 4. Navigasi kembali ke halaman profil
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+    } catch (e) {
+      _showErrorSnackbar("Failed to update password: ${e.toString()}");
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 }
