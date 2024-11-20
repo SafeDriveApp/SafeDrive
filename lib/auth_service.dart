@@ -17,8 +17,13 @@ class AuthService {
         password: password,
       );
 
+      // Ambil UID pengguna setelah login
+      String userId = userCredential.user!.uid;
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+      //Menimpan ID User
+      await prefs.setString('userID', userId);
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
@@ -56,6 +61,7 @@ class AuthService {
 
       // Hash password jika perlu (gunakan bcrypt atau algoritma lain)
       String passwordHash = password; // Gantilah dengan password hash
+      String uid = user!.uid; // Menggunakan UID sebagai ID unik pengguna
 
       // Menambahkan data pengguna baru ke Firestore
       FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -85,5 +91,75 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
+  }
+
+  Future<Map<String, dynamic>?> getUserProfile(String email) async {
+    try {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      // Cari dokumen pengguna berdasarkan email
+      QuerySnapshot snapshot = await firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        // Mengambil data pengguna dari dokumen pertama
+        return snapshot.docs[0].data() as Map<String, dynamic>;
+      }
+      return null; // Jika tidak ada data ditemukan
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      return null;
+    }
+  }
+
+  Future<void> updateUserProfile({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      try {
+        // Perbarui nama di Firebase Authentication
+        if (name.isNotEmpty) {
+          await user.updateDisplayName(name);
+        }
+
+        // Perbarui email di Firebase Authentication
+        if (email.isNotEmpty && email != user.email) {
+          await user.updateEmail(email);
+        }
+
+        // Perbarui password di Firebase Authentication
+        if (password.isNotEmpty) {
+          await user.updatePassword(password);
+        }
+
+        // Perbarui data di Firestore
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        QuerySnapshot snapshot = await firestore
+            .collection('users')
+            .where('email', isEqualTo: user.email)
+            .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          await snapshot.docs[0].reference.update({
+            'name': name,
+            'email': email,
+            'password_hash': password,
+            'updated_at': FieldValue.serverTimestamp(),
+          });
+        }
+
+        print("User profile updated successfully!");
+      } on FirebaseAuthException catch (e) {
+        print('Error updating profile: ${e.message}');
+        throw Exception(e.message);
+      }
+    } else {
+      throw Exception("User is not logged in.");
+    }
   }
 }
