@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
+import 'package:safe_drive/Page/login_page.dart';
 import 'package:safe_drive/auth_service.dart';
-import 'package:safe_drive/data_user.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,7 +15,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userProfile;
-
   bool isLoading = true;
 
   @override
@@ -31,14 +28,6 @@ class _ProfilePageState extends State<ProfilePage> {
       String email = FirebaseAuth.instance.currentUser!.email!;
       Map<String, dynamic>? fetchedUserProfile =
           await AuthService().getUserProfile(email);
-
-      // Tambahkan logika untuk mengambil URL gambar profil
-      // final user = FirebaseAuth.instance.currentUser!;
-      // DocumentSnapshot userDoc = await FirebaseFirestore.instance
-      //     .collection('users')
-      //     .doc(user.uid)
-      //     .get();
-      // String? profileImageUrl = userDoc['profile_image_url'];
 
       setState(() {
         userProfile = fetchedUserProfile;
@@ -54,6 +43,14 @@ class _ProfilePageState extends State<ProfilePage> {
         isLoading = false;
       });
     }
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   @override
@@ -110,18 +107,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Center(
                 child: Padding(
-                  // padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
-                  // child: Column(
-                  //   mainAxisSize: MainAxisSize.min,
-                  //   children: [
-                  //     SizedBox(height: 50),
-                  //     SizedBox(
-                  //       width: 200, // Increased width
-                  //       height: 110, // Increased height
-                  //       child: const Image(
-                  //         image: AssetImage("assets/img/logo.png"),
-                  //         fit: BoxFit.fill,
-                  //       ),
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
@@ -136,9 +121,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
-                        // decoration: InputDecoration(
-                        //   labelText: 'odin tralala',
-                        // ),
                         userProfile?['name'] ?? 'tidak',
                         style: TextStyle(
                           fontFamily: 'Poppins',
@@ -262,6 +244,28 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     child: Text('Change Password'),
+                                  ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                SizedBox(
+                                  width:
+                                      200, // Match the width of the input form
+                                  child: ElevatedButton(
+                                    onPressed: _signOut,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color(0xFFFFD803), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 20),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight:
+                                            FontWeight.w600, // Semi-bold
+                                        fontSize: 16,
+                                        color: Colors.black, // Text color
+                                      ),
+                                    ),
+                                    child: Text('Log Out'),
                                   ),
                                 ),
                               ],
