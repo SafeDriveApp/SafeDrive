@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'package:safe_drive/Page/onboarding_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+// ...
+
+late List<CameraDescription> cameras;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  cameras = await availableCameras();
   runApp(MyApp());
 }
 
@@ -15,6 +29,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'Poppins',
       ),
       home: OnboardingPage(),
     );

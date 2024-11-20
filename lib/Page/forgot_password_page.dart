@@ -26,18 +26,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: screenHeight * 10 / 100),
+              IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  ); // Navigate back to the previous page
+                },
+              ),
               Row(
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      ); // Navigate back to the previous page
-                    },
-                  ),
                   Expanded(
                     child: Center(
                       child: Text(

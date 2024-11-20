@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:safe_drive/auth_service.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/login_page.dart';
 
@@ -13,6 +14,65 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  Future<void> _register() async {
+    bool isPasswordVisible = false;
+    bool isConfirmPasswordVisible = false;
+
+    String nama = _namaController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+    String confirmPassword = _confirmPasswordController.text.trim();
+
+    if (nama.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill in all fields")),
+      );
+      return;
+    }
+    if (password == confirmPassword) {
+      try {
+        print("cek");
+        await AuthService().register(email, password, nama);
+        // // Arahkan ke halaman login atau home setelah berhasil registrasi
+        // // Mengirim email verifikasi setelah registrasi berhasil
+        // User? user = FirebaseAuth.instance.currentUser;
+        // if (user != null && !user.emailVerified) {
+        //   await user.sendEmailVerification();
+        //   print("Email verifikasi telah dikirim.");
+        //   print("Masuk Ke Halaman Verifikasi");
+        //   // Arahkan ke halaman verifikasi email (EmailVerificationPage)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => EmailVerificationPage()),
+        );
+
+      } catch (e) {
+        // Menampilkan pesan error jika terjadi kesalahan
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Registration failed: $e")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Passwords do not match")),
+      );
+    }
+    Future<void> emailpage() async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => EmailVerificationPage()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +133,7 @@ class _SignupPageState extends State<SignupPage> {
                       height: 2,
                     ),
                     TextField(
+                      controller: _namaController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'odin',
@@ -83,6 +144,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     Text("Email Address"),
                     TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Odin@gmail.com',
@@ -93,6 +155,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     Text("Password"),
                     TextField(
+                      controller: _passwordController,
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -116,6 +179,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     Text("Confirm Password"),
                     TextField(
+                      controller: _confirmPasswordController,
                       obscureText: !_isConfirmPasswordVisible,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -143,14 +207,7 @@ class _SignupPageState extends State<SignupPage> {
                         width: double
                             .infinity, // Match the width of the input form
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      EmailVerificationPage()),
-                            );
-                          },
+                          onPressed: _register,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFFFD803), // Button color
                             padding: EdgeInsets.symmetric(vertical: 15),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/camera_page.dart';
+import 'package:camera/camera.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,13 +14,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late Future<List<CameraDescription>> _initializeCameraFuture;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home Page',
-        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
-    CameraPage(), // Placeholder for CameraPage
-    ProfilePage(), // Placeholder for ProfilePage
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _initializeCameraFuture = _initializeCamera();
+  }
+
+  Future<List<CameraDescription>> _initializeCamera() async {
+    return await availableCameras();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -28,11 +35,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      body: FutureBuilder<List<CameraDescription>>(
+        future: _initializeCameraFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              final cameras = snapshot.data!;
+              return _widgetOptions(cameras).elementAt(_selectedIndex);
+            } else {
+              return Center(child: Text('Failed to load cameras'));
+            }
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -52,6 +68,169 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  List<Widget> _widgetOptions(List<CameraDescription> cameras) => <Widget>[
+        HomeContent(),
+        CameraPage(cameras: cameras), // Provide the required cameras parameter
+        ProfilePage(), // Placeholder for ProfilePage
+      ];
+}
+
+class HomeContent extends StatefulWidget {
+  const HomeContent({super.key});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  GoogleMapController? _mapController;
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // Get the current location
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _currentPosition = position;
+    });
+
+    // Move the map camera to the current location
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(position.latitude, position.longitude),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 40), // Add space at the top
+          Text(
+            'Welcome, [User Name]',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.warning, color: Colors.red),
+              title: Text('Drowsiness Detected!'),
+              subtitle: Text('Please take a break.'),
+            ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Driving Statistics',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          // Placeholder for statistics
+          Container(
+            height: 200,
+            color: Colors.grey[200],
+            child: Center(child: Text('Statistics Graph')),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Current Location',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          // Map to show current location
+          Container(
+            height: 200,
+            color: Colors.grey[200],
+            child: _currentPosition == null
+                ? Center(child: CircularProgressIndicator())
+                : GoogleMap(
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                      // Move the map camera to the current location
+                      if (_currentPosition != null) {
+                        _mapController!.animateCamera(
+                          CameraUpdate.newLatLng(
+                            LatLng(
+                              _currentPosition!.latitude,
+                              _currentPosition!.longitude,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ),
+                      zoom: 14.0,
+                    ),
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                  ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Safety Tips',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 1: Take regular breaks'),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 2: Stay hydrated'),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb),
+              title: Text('Tip 3: Avoid heavy meals before driving'),
+            ),
+          ),
+        ],
       ),
     );
   }
