@@ -4,7 +4,7 @@ import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
 import 'package:safe_drive/Page/login_page.dart';
-import 'package:safe_drive/data_user.dart';
+import 'package:safe_drive/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -24,11 +24,25 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchUserProfile() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    userProfile = await DataUser().getUserProfile(uid);
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      String email = FirebaseAuth.instance.currentUser!.email!;
+      Map<String, dynamic>? fetchedUserProfile =
+          await AuthService().getUserProfile(email);
+
+      setState(() {
+        userProfile = fetchedUserProfile;
+        isLoading = false;
+      });
+
+      // Cetak isi userProfile ke console untuk debugging
+      print("Isi userProfile: $userProfile");
+      print('Current User UID: ${FirebaseAuth.instance.currentUser?.uid}');
+    } catch (e) {
+      print("Error fetching user profile: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _signOut() async {
@@ -43,6 +57,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(), // Indikator loading
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
@@ -84,22 +107,21 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Center(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, screenWidth * 10 / 100, 0, 0),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(height: 50),
-                      SizedBox(
-                        width: 200, // Increased width
-                        height: 110, // Increased height
-                        child: const Image(
-                          image: AssetImage("assets/img/logo.png"),
-                          fit: BoxFit.fill,
-                        ),
+                      // Tambahkan Gambar Profil
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: userProfile?['profile_image_url'] !=
+                                null
+                            ? NetworkImage(userProfile!['profile_image_url'])
+                            : AssetImage("assets/img/default_avatar.png")
+                                as ImageProvider,
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
-                        userProfile?['name'] ?? 'Loading...',
+                        userProfile?['name'] ?? 'tidak',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
@@ -127,125 +149,127 @@ class _ProfilePageState extends State<ProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Nama"),
-                            SizedBox(height: 2),
-                            TextField(
-                              controller: TextEditingController(
-                                  text: userProfile?['name']),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
+                            SizedBox(
+                              height: 2,
                             ),
-                            SizedBox(height: 20),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                userProfile?['name'] ?? ' Tidak tersedia',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              tileColor: Colors.grey.shade200,
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
                             Text("Email Address"),
-                            TextField(
-                              controller: TextEditingController(
-                                  text: userProfile?['email']),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                userProfile?['email'] ?? ' Apaan Tuh',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
+                              tileColor: Colors.grey.shade200,
                             ),
-                            SizedBox(height: 20),
-                            Text("Gender"),
-                            TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'L',
-                              ),
+                            SizedBox(
+                              height: 20,
                             ),
-                            SizedBox(height: 20),
-                            Text("Date Of Birth"),
-                            TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: '12-12-1999',
-                              ),
+                            SizedBox(
+                              height: 20,
                             ),
-                            SizedBox(height: 20),
                             Center(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    width:
-                                        200, // Match the width of the input form
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  UpdateProfilePage()),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Color(0xFFFFD803), // Button color
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 20),
-                                        textStyle: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontWeight:
-                                              FontWeight.w600, // Semi-bold
-                                          fontSize: 16,
-                                          color: Colors.black, // Text color
-                                        ),
+                                child: Column(
+                              children: [
+                                SizedBox(
+                                  width:
+                                      200, // Match the width of the input form
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                UpdateProfilePage()),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color(0xFFFFD803), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 20),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight:
+                                            FontWeight.w600, // Semi-bold
+                                        fontSize: 16,
+                                        color: Colors.black, // Text color
                                       ),
-                                      child: Text('Update Profile'),
                                     ),
+                                    child: Text('Update Profile'),
                                   ),
-                                  Padding(padding: EdgeInsets.all(5)),
-                                  SizedBox(
-                                    width:
-                                        200, // Match the width of the input form
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ChangePasswordPage()),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Color(0xFFFFD803), // Button color
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 20),
-                                        textStyle: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontWeight:
-                                              FontWeight.w600, // Semi-bold
-                                          fontSize: 16,
-                                          color: Colors.black, // Text color
-                                        ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                SizedBox(
+                                  width:
+                                      200, // Match the width of the input form
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ChangePasswordPage()),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color(0xFFFFD803), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 20),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight:
+                                            FontWeight.w600, // Semi-bold
+                                        fontSize: 16,
+                                        color: Colors.black, // Text color
                                       ),
-                                      child: Text('Change Password'),
                                     ),
+                                    child: Text('Change Password'),
                                   ),
-                                  Padding(padding: EdgeInsets.all(5)),
-                                  SizedBox(
-                                    width:
-                                        200, // Match the width of the input form
-                                    child: ElevatedButton(
-                                      onPressed: _signOut,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Color(0xFFFFD803), // Button color
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 20),
-                                        textStyle: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontWeight:
-                                              FontWeight.w600, // Semi-bold
-                                          fontSize: 16,
-                                          color: Colors.black, // Text color
-                                        ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                SizedBox(
+                                  width:
+                                      200, // Match the width of the input form
+                                  child: ElevatedButton(
+                                    onPressed: _signOut,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color(0xFFFFD803), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 20),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight:
+                                            FontWeight.w600, // Semi-bold
+                                        fontSize: 16,
+                                        color: Colors.black, // Text color
                                       ),
-                                      child: Text('Log Out'),
                                     ),
+                                    child: Text('Log Out'),
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              ],
+                            )),
                           ],
                         ),
                       ),

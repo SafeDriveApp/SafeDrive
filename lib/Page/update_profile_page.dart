@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 
@@ -10,27 +12,94 @@ class UpdateProfilePage extends StatefulWidget {
 
 class _UpdateProfilePageState extends State<UpdateProfilePage> {
   String? _selectedItem; // Variabel untuk item yang dipilih
-  final List<String> _dropdownItems = ['Male', 'Female'];
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  DateTime? _selectedDate; // Variabel untuk menyimpan tanggal yang dipilih
-  final TextEditingController _dateController =
-      TextEditingController(); // Controller untuk menampilkan tanggal di TextField
+  bool _isLoading = false; // Untuk menampilkan indikator loading
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile(); // Memuat data pengguna saat halaman dibuka
+  }
 
-  // Fungsi untuk menampilkan date picker
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(), // Tanggal awal (default)
-      firstDate: DateTime(1900), // Batas tanggal terendah
-      lastDate: DateTime(2100), // Batas tanggal tertinggi
-    );
+  Future<void> _loadUserProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (pickedDate != null && pickedDate != _selectedDate) {
+    try {
+      // Mendapatkan email pengguna saat ini
+      final email = _auth.currentUser?.email;
+
+      if (email != null) {
+        // Ambil data pengguna dari Firestore
+        final snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          final data = snapshot.docs.first.data();
+
+          // Mengisi field dengan data pengguna
+          _nameController.text = data['name'] ?? '';
+          _emailController.text = data['email'] ?? '';
+        }
+      }
+    } catch (e) {
+      print("Error loading user profile: $e");
+    } finally {
       setState(() {
-        _selectedDate = pickedDate;
-        _dateController.text =
-            "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}";
+        _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _updateUserProfile(String email, String newName) async {
+    try {
+      // Cari dokumen berdasarkan email
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      // Periksa apakah dokumen ditemukan
+      if (snapshot.docs.isNotEmpty) {
+        // Ambil ID dokumen
+        final docId = snapshot.docs.first.id;
+
+        // Update nama di dokumen yang sesuai
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(docId)
+            .update({'name': newName, 'email': email});
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nama berhasil diperbarui')),
+        );
+        // Kembali ke halaman profil
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => ProfilePage()),
+        // );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Email tidak ditemukan')),
+        );
+      }
+      // Kembali ke halaman profil
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
     }
   }
 
@@ -91,65 +160,47 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TextField(
+                              controller: _nameController,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'What is your name',
+                                labelText: 'Name',
                               ),
                             ),
                             SizedBox(height: 20),
                             TextField(
+                              controller: _emailController,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'And your last name?',
+                                labelText: 'Email',
                               ),
-                            ),
-                            SizedBox(height: 20),
-                            // Dropdown untuk memilih gender
-                            DropdownButtonFormField<String>(
-                              value: _selectedItem,
-                              decoration: InputDecoration(
-                                border:
-                                    OutlineInputBorder(), // Memberikan border seperti TextField lainnya
-                                hintText: 'Select your gender',
-                              ),
-                              items: _dropdownItems.map((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedItem = newValue;
-                                });
-                              },
-                            ),
-                            SizedBox(height: 20),
-
-                            // TextField untuk memilih tanggal lahir dengan DatePicker
-                            Text("Date Of Birth"),
-                            TextField(
-                              controller: _dateController,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Select your date of birth',
-                              ),
-                              readOnly: true, // Agar tidak bisa diketik manual
-                              onTap: () {
-                                _selectDate(context); // Menampilkan date picker
-                              },
+                              readOnly: true, // Email tidak bisa diubah
                             ),
                             SizedBox(height: 20),
                             Center(
                               child: SizedBox(
                                 width: 200, // Match the width of the input form
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ProfilePage()),
-                                    );
+                                  onPressed: () async {
+                                    // Validasi: pastikan kolom tidak kosong
+                                    if (_emailController.text
+                                            .trim()
+                                            .isNotEmpty &&
+                                        _nameController.text
+                                            .trim()
+                                            .isNotEmpty) {
+                                      // Panggil fungsi updateNameByEmail
+                                      await _updateUserProfile(
+                                        _emailController.text.trim(),
+                                        _nameController.text.trim(),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Email dan Nama tidak boleh kosong')),
+                                      );
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:

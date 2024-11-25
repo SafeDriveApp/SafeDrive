@@ -13,8 +13,7 @@ class ChangePasswordPage extends StatefulWidget {
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -37,11 +36,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       await user.reauthenticateWithCredential(credential);
 
       // Check if new password and confirm password match
-      if (_newPasswordController.text.trim() !=
-          _confirmPasswordController.text.trim()) {
+      if (_newPasswordController.text.trim() != _confirmPasswordController.text.trim()) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('New password and confirm password do not match')),
+          SnackBar(content: Text('New password and confirm password do not match')),
         );
         return;
       }

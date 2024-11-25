@@ -1,9 +1,20 @@
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services' version '4.3.15' apply false
+    // END: FlutterFire Configuration
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+
 }
+
+dependencies {
+    implementation 'com.google.firebase:firebase-auth:21.0.7'  // Firebase Auth
+    implementation 'com.google.firebase:firebase-core:21.1.0'  // Firebase Core
+    // Dependencies lainnya yang diperlukan
+}
+
 
 android {
     namespace = "com.example.safe_drive"
@@ -24,7 +35,8 @@ android {
         applicationId = "com.example.safe_drive"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // minSdk = flutter.minSdkVersion
+        minSdkVersion 23 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -37,8 +49,10 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    apply plugin: 'com.google.gms.google-services' // Ini harus di bagian bawah
 }
 
 flutter {
     source = "../.."
 }
+
