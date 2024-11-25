@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
 
@@ -6,12 +7,63 @@ class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPage();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _ChangePasswordPage extends State<ChangePasswordPage> {
-  final bool _isPasswordVisible = false;
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  bool _isOldPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+
+  Future<void> _changePassword() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No user is signed in')),
+        );
+        return;
+      }
+
+      // Reauthenticate user with old password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: _oldPasswordController.text.trim(),
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Check if new password and confirm password match
+      if (_newPasswordController.text.trim() !=
+          _confirmPasswordController.text.trim()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('New password and confirm password do not match')),
+        );
+        return;
+      }
+
+      // Update password
+      await user.updatePassword(_newPasswordController.text.trim());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password changed successfully')),
+      );
+
+      // Navigate to profile page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to change password: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +72,6 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(255, 255, 255, 1),
       body: SingleChildScrollView(
-        // Added SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(1),
           child: Column(
@@ -64,60 +115,61 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth *
-                                5 /
-                                100), // Added padding to left and right
+                            horizontal: screenWidth * 5 / 100),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: 2,
-                            ),
+                            SizedBox(height: 2),
                             Text("Old Password"),
                             TextField(
-                              obscureText: !_isConfirmPasswordVisible,
+                              controller: _oldPasswordController,
+                              obscureText: !_isOldPasswordVisible,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 hintText: '**********',
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isConfirmPasswordVisible
+                                    _isOldPasswordVisible
                                         ? Icons.visibility
                                         : Icons.visibility_off,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _isConfirmPasswordVisible =
-                                          !_isConfirmPasswordVisible;
+                                      _isOldPasswordVisible =
+                                          !_isOldPasswordVisible;
                                     });
                                   },
                                 ),
                               ),
                             ),
+                            SizedBox(height: 20),
                             Text("New Password"),
                             TextField(
-                              obscureText: !_isConfirmPasswordVisible,
+                              controller: _newPasswordController,
+                              obscureText: !_isNewPasswordVisible,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 hintText: '**********',
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isConfirmPasswordVisible
+                                    _isNewPasswordVisible
                                         ? Icons.visibility
                                         : Icons.visibility_off,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _isConfirmPasswordVisible =
-                                          !_isConfirmPasswordVisible;
+                                      _isNewPasswordVisible =
+                                          !_isNewPasswordVisible;
                                     });
                                   },
                                 ),
                               ),
                             ),
+                            SizedBox(height: 20),
                             Text("Confirm New Password"),
                             TextField(
+                              controller: _confirmPasswordController,
                               obscureText: !_isConfirmPasswordVisible,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
@@ -137,46 +189,27 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            SizedBox(height: 20),
                             Center(
-                                child: Column(
-                              children: [
-                                Padding(padding: EdgeInsets.all(5)),
-                                SizedBox(
-                                  width:
-                                      200, // Match the width of the input form
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePage()),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color(0xFFFFD803), // Button color
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 20),
-                                      textStyle: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight:
-                                            FontWeight.w600, // Semi-bold
-                                        fontSize: 16,
-                                        color: Colors.black, // Text color
-                                      ),
+                              child: SizedBox(
+                                width: 200,
+                                child: ElevatedButton(
+                                  onPressed: _changePassword,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFFFD803),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 20),
+                                    textStyle: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.black,
                                     ),
-                                    child: Text('Submit'),
                                   ),
+                                  child: Text('Submit'),
                                 ),
-                              ],
-                            )),
+                              ),
+                            ),
                           ],
                         ),
                       ),

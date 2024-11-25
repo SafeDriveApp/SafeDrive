@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
+import 'package:safe_drive/Page/login_page.dart';
 import 'package:safe_drive/data_user.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -28,6 +29,14 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   @override
@@ -90,9 +99,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
-                        // decoration: InputDecoration(
-                        //   labelText: 'odin tralala',
-                        // ),
                         userProfile?['name'] ?? 'Loading...',
                         style: TextStyle(
                           fontFamily: 'Poppins',
@@ -121,9 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Nama"),
-                            SizedBox(
-                              height: 2,
-                            ),
+                            SizedBox(height: 2),
                             TextField(
                               controller: TextEditingController(
                                   text: userProfile?['name']),
@@ -131,9 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 border: OutlineInputBorder(),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            SizedBox(height: 20),
                             Text("Email Address"),
                             TextField(
                               controller: TextEditingController(
@@ -142,9 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 border: OutlineInputBorder(),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            SizedBox(height: 20),
                             Text("Gender"),
                             TextField(
                               decoration: InputDecoration(
@@ -152,9 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 hintText: 'L',
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            SizedBox(height: 20),
                             Text("Date Of Birth"),
                             TextField(
                               decoration: InputDecoration(
@@ -162,71 +160,92 @@ class _ProfilePageState extends State<ProfilePage> {
                                 hintText: '12-12-1999',
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
+                            SizedBox(height: 20),
                             Center(
-                                child: Column(
-                              children: [
-                                SizedBox(
-                                  width:
-                                      200, // Match the width of the input form
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                UpdateProfilePage()),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color(0xFFFFD803), // Button color
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 20),
-                                      textStyle: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight:
-                                            FontWeight.w600, // Semi-bold
-                                        fontSize: 16,
-                                        color: Colors.black, // Text color
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        200, // Match the width of the input form
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  UpdateProfilePage()),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Color(0xFFFFD803), // Button color
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 20),
+                                        textStyle: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight:
+                                              FontWeight.w600, // Semi-bold
+                                          fontSize: 16,
+                                          color: Colors.black, // Text color
+                                        ),
                                       ),
+                                      child: Text('Update Profile'),
                                     ),
-                                    child: Text('Update Profile'),
                                   ),
-                                ),
-                                Padding(padding: EdgeInsets.all(5)),
-                                SizedBox(
-                                  width:
-                                      200, // Match the width of the input form
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChangePasswordPage()),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color(0xFFFFD803), // Button color
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 20),
-                                      textStyle: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight:
-                                            FontWeight.w600, // Semi-bold
-                                        fontSize: 16,
-                                        color: Colors.black, // Text color
+                                  Padding(padding: EdgeInsets.all(5)),
+                                  SizedBox(
+                                    width:
+                                        200, // Match the width of the input form
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChangePasswordPage()),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Color(0xFFFFD803), // Button color
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 20),
+                                        textStyle: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight:
+                                              FontWeight.w600, // Semi-bold
+                                          fontSize: 16,
+                                          color: Colors.black, // Text color
+                                        ),
                                       ),
+                                      child: Text('Change Password'),
                                     ),
-                                    child: Text('Change Password'),
                                   ),
-                                ),
-                              ],
-                            )),
+                                  Padding(padding: EdgeInsets.all(5)),
+                                  SizedBox(
+                                    width:
+                                        200, // Match the width of the input form
+                                    child: ElevatedButton(
+                                      onPressed: _signOut,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Color(0xFFFFD803), // Button color
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 20),
+                                        textStyle: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight:
+                                              FontWeight.w600, // Semi-bold
+                                          fontSize: 16,
+                                          color: Colors.black, // Text color
+                                        ),
+                                      ),
+                                      child: Text('Log Out'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
