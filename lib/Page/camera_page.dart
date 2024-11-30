@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
+import 'dart:async';
 import 'dart:math' as math;
+import 'dart:io';
 
 class CameraPage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -17,6 +17,8 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  bool _isRecording = false;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -33,34 +35,57 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _uploadVideo(XFile videoFile) async {
-    final snackBar = SnackBar(content: Text('Uploading video...'));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
+  Future<void> _uploadFrame(XFile frameFile) async {
     final request = http.MultipartRequest(
       'POST',
       Uri.parse('http://192.168.1.18:5000/upload'),
     );
     request.files.add(await http.MultipartFile.fromPath(
-      'video',
-      videoFile.path,
+      'frame',
+      frameFile.path,
     ));
     final response = await request.send();
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Video uploaded successfully')),
-      );
-    } else {
+    if (response.statusCode != 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Video upload failed with status: ${response.statusCode}')),
+                'Frame upload failed with status: ${response.statusCode}')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Frame uploaded successfully')),
       );
     }
+  }
+
+  void _startRecording() {
+    setState(() {
+      _isRecording = true;
+    });
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (_isRecording) {
+        try {
+          final XFile frameFile = await _controller.takePicture();
+          await _uploadFrame(frameFile);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      }
+    });
+  }
+
+  void _stopRecording() {
+    setState(() {
+      _isRecording = false;
+    });
+    _timer?.cancel();
   }
 
   @override
@@ -84,37 +109,27 @@ class _CameraPageState extends State<CameraPage> {
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: FloatingActionButton(
-                      onPressed: () async {
-                        try {
-                          await _initializeControllerFuture;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Starting video recording...')),
-                          );
-                          await _controller.startVideoRecording();
-                          await Future.delayed(
-                              Duration(seconds: 7)); // Record for 10 seconds
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Stopping video recording...')),
-                          );
-                          final XFile videoFile =
-                              await _controller.stopVideoRecording();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    'Video recorded at: ${videoFile.path}')),
-                          );
-                          if (!mounted) return;
-                          await _uploadVideo(videoFile);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_isRecording) {
+                          _stopRecording();
+                        } else {
+                          _startRecording();
                         }
                       },
-                      child: Icon(Icons.videocam),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFD803), // Button color
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        minimumSize: Size(double.infinity, 50),
+                        textStyle: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600, // Semi-bold
+                          fontSize: 16,
+                          color: Colors.black, // Text color
+                        ),
+                      ),
+                      child:
+                          Text(_isRecording ? 'Stop Driving' : 'Start Driving'),
                     ),
                   ),
                 ),
