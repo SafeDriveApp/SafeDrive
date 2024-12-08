@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:io';
+import 'dart:convert';
+import 'package:audioplayers/audioplayers.dart';
 
 class CameraPage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -43,49 +45,54 @@ class _CameraPageState extends State<CameraPage> {
   Future<void> _uploadFrame(XFile frameFile) async {
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://192.168.1.18:5000/upload'),
+      Uri.parse('http://192.168.1.15:5000/upload'),
     );
     request.files.add(await http.MultipartFile.fromPath(
       'frame',
       frameFile.path,
     ));
+
     final response = await request.send();
-    if (response.statusCode != 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Frame upload failed with status: ${response.statusCode}')),
-      );
+
+    if (response.statusCode == 200) {
+      // Membaca respons JSON yang berisi hasil prediksi
+      final responseData = await response.stream.bytesToString();
+      final Map<String, dynamic> result =
+          jsonDecode(responseData); // Decode JSON
+
+      String prediction = result['prediction']; // Mendapatkan hasil prediksi
+
+      // Jika terdeteksi mengantuk, putar suara alarm
+      if (prediction == '0') {
+        final player = AudioPlayer();
+        await player.play(AssetSource('alarm.mp3')); // Use AssetSource
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Frame uploaded successfully')),
-      );
+      print('Upload failed with status: ${response.statusCode}');
     }
   }
 
-  void _startRecording() {
+  void _startRecording() async {
     setState(() {
       _isRecording = true;
     });
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (_isRecording) {
-        try {
-          final XFile frameFile = await _controller.takePicture();
-          await _uploadFrame(frameFile);
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
-        }
+
+    while (_isRecording) {
+      try {
+        final XFile frameFile = await _controller.takePicture();
+        await _uploadFrame(frameFile);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
       }
-    });
+    }
   }
 
   void _stopRecording() {
     setState(() {
       _isRecording = false;
     });
-    _timer?.cancel();
   }
 
   @override
