@@ -80,7 +80,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             .update({'name': newName, 'email': email});
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nama berhasil diperbarui')),
+          SnackBar(content: Text('Name succesfully changed')),
         );
         // Kembali ke halaman profil
         // Navigator.pushReplacement(
@@ -89,7 +89,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         // );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Email tidak ditemukan')),
+          SnackBar(content: Text('Email not found')),
         );
       }
       // Kembali ke halaman profil
@@ -199,7 +199,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                           .showSnackBar(
                                         SnackBar(
                                             content: Text(
-                                                'Email dan Nama tidak boleh kosong')),
+                                                'Email and Name cannot be empty')),
                                       );
                                     }
                                   },

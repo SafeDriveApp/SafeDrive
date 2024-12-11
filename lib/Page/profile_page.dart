@@ -148,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Nama"),
+                            Text("Name"),
                             SizedBox(
                               height: 2,
                             ),
