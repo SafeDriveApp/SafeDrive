@@ -113,11 +113,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       // Tambahkan Gambar Profil
                       CircleAvatar(
                         radius: 60,
-                        backgroundImage: userProfile?['profile_image_url'] !=
-                                null
-                            ? NetworkImage(userProfile!['profile_image_url'])
-                            : AssetImage("assets/img/default_avatar.png")
-                                as ImageProvider,
+                        child: Image.asset(
+                          'assets/img/Profil.jpg',
+                          height: 200,
+                        ),
                       ),
                       SizedBox(height: 10), // Space between image and text
                       Text(
