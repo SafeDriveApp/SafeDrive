@@ -86,7 +86,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const UpdateProfilePage()),
+                              builder: (context) => const ProfilePage()),
                         ); // Navigate back to the previous page
                       },
                     ),
