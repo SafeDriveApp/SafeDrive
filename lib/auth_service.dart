@@ -1,10 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
-import 'package:safe_drive/Page/signup_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -61,7 +57,6 @@ class AuthService {
 
       // Hash password jika perlu (gunakan bcrypt atau algoritma lain)
       String passwordHash = password; // Gantilah dengan password hash
-      String uid = user!.uid; // Menggunakan UID sebagai ID unik pengguna
 
       // Menambahkan data pengguna baru ke Firestore
       FirebaseFirestore firestore = FirebaseFirestore.instance;
