@@ -76,32 +76,31 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
-  void _startRecording() async {
-    setState(() {
-      _isRecording = true;
-      _startTime = DateTime.now();
-    });
+  // void _startRecording() async {
+  //   setState(() {
+  //     _isRecording = true;
+  //     _startTime = DateTime.now();
+  //   });
 
-    _reminderTimer = Timer.periodic(Duration(hours: 1), (timer) {
-      final elapsed = DateTime.now().difference(_startTime!);
-      if (elapsed.inHours >= 2 && (elapsed.inHours - 2) % 1 == 0) {
-        _showReminderDialog(elapsed.inHours);
-      }
-    });
+  //   _reminderTimer = Timer.periodic(Duration(hours: 1), (timer) {
+  //     final elapsed = DateTime.now().difference(_startTime!);
+  //     if (elapsed.inHours >= 2 && (elapsed.inHours - 2) % 1 == 0) {
+  //       _showReminderDialog(elapsed.inHours);
+  //     }
+  //   });
 
-    while (_isRecording) {
-      try {
-        final XFile frameFile = await _controller.takePicture();
-        await _uploadFrame(frameFile);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
-  }
+  //   while (_isRecording) {
+  //     try {
+  //       final XFile frameFile = await _controller.takePicture();
+  //       await _uploadFrame(frameFile);
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Error: $e')),
+  //       );
+  //     }
+  //   }
+  // }
 
-  /* Debugging
   void _startRecording() async {
     setState(() {
       _isRecording = true;
@@ -126,7 +125,6 @@ class _CameraPageState extends State<CameraPage> {
       }
     }
   }
-  */
 
   void _stopRecording() {
     setState(() {
@@ -139,6 +137,10 @@ class _CameraPageState extends State<CameraPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // Menampilkan dialog
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop(true);
+        });
         return AlertDialog(
           title: Text('Reminder'),
           content: Text(
