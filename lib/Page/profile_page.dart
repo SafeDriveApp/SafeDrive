@@ -133,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(
-                                userProfile?['name'] ?? ' Tidak tersedia',
+                                userProfile?['name'] ?? 'Unknown',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(
-                                userProfile?['email'] ?? ' Apaan Tuh',
+                                userProfile?['email'] ?? 'Unknown',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
