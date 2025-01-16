@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CameraPage extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -22,6 +24,10 @@ class _CameraPageState extends State<CameraPage> {
   Timer? _timer;
   DateTime? _startTime;
   Timer? _reminderTimer;
+
+  // Variabel untuk menyimpan data berkendara
+  Duration _totalDrivingTime = Duration.zero;
+  int _drowsinessWarnings = 0;
 
   @override
   void initState() {
@@ -70,6 +76,11 @@ class _CameraPageState extends State<CameraPage> {
         await player.play(AssetSource('alarm.mp3')); // Use AssetSource
         await Future.delayed(
             Duration(seconds: 2, milliseconds: 500)); // Delay 2.5 detik
+
+        // Perbarui jumlah peringatan mengantuk
+        setState(() {
+          _drowsinessWarnings++;
+        });
       }
     } else {
       print('Upload failed with status: ${response.statusCode}');
@@ -89,6 +100,15 @@ class _CameraPageState extends State<CameraPage> {
       }
     });
 
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (_isRecording) {
+        // Perbarui total waktu berkendara
+        setState(() {
+          _totalDrivingTime = DateTime.now().difference(_startTime!);
+        });
+      }
+    });
+
     while (_isRecording) {
       try {
         final XFile frameFile = await _controller.takePicture();
@@ -101,11 +121,31 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  Future<void> _saveDrivingStatistics() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    print('Total Driving Time: ${_totalDrivingTime.inMinutes} minutes');
+    print('Drowsiness Warnings: $_drowsinessWarnings');
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('driving_statistics')
+        .doc('last_driving')
+        .set({
+      'totalDrivingTime': _totalDrivingTime.inMinutes,
+      'drowsinessWarnings': _drowsinessWarnings,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
   void _stopRecording() {
     setState(() {
       _isRecording = false;
     });
     _reminderTimer?.cancel();
+    _timer?.cancel();
+
+    // Simpan data berkendara terakhir
+    _saveDrivingStatistics();
   }
 
   void _showReminderDialog(int hours) async {

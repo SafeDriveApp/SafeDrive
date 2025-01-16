@@ -18,17 +18,25 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   late Future<List<CameraDescription>> _initializeCameraFuture;
   Map<String, dynamic>? userProfile;
+  Map<String, dynamic>? DrivingStatistics;
   bool isLoadingProfile = true;
+  bool isLoadingStatistics = true;
 
   @override
   void initState() {
     super.initState();
     _initializeCameraFuture = _initializeCamera();
     _fetchUserProfile(); // Memuat profil pengguna
+    _fetchDrivingStatistics(); // Memuat statistik berkendara terakhir
   }
 
   Future<List<CameraDescription>> _initializeCamera() async {
-    return await availableCameras();
+    try {
+      return await availableCameras();
+    } catch (e) {
+      print("Error initializing cameras: $e");
+      return [];
+    }
   }
 
   Future<void> _fetchUserProfile() async {
@@ -58,6 +66,34 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _fetchDrivingStatistics() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('driving_statistics')
+          .doc('last_driving')
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          DrivingStatistics = snapshot.data() as Map<String, dynamic>;
+          isLoadingStatistics = false;
+        });
+      } else {
+        setState(() {
+          isLoadingStatistics = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching last driving statistics: $e");
+      setState(() {
+        isLoadingStatistics = false;
+      });
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -73,13 +109,15 @@ class _HomePageState extends State<HomePage> {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               final cameras = snapshot.data!;
-              return isLoadingProfile
+              return isLoadingProfile || isLoadingStatistics
                   ? Center(child: CircularProgressIndicator())
                   : _widgetOptions(cameras).elementAt(_selectedIndex);
             } else {
+              print("Failed to load cameras");
               return Center(child: Text('Failed to load cameras'));
             }
           } else {
+            print("Loading cameras...");
             return Center(child: CircularProgressIndicator());
           }
         },
@@ -107,7 +145,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Widget> _widgetOptions(List<CameraDescription> cameras) => <Widget>[
-        HomeContent(userProfile: userProfile), // Pass userProfile
+        HomeContent(
+            userProfile: userProfile, DrivingStatistics: DrivingStatistics),
         CameraPage(cameras: cameras),
         ProfilePage(), // Placeholder for ProfilePage
       ];
@@ -115,8 +154,10 @@ class _HomePageState extends State<HomePage> {
 
 class HomeContent extends StatefulWidget {
   final Map<String, dynamic>? userProfile;
+  final Map<String, dynamic>? DrivingStatistics;
 
-  const HomeContent({Key? key, this.userProfile}) : super(key: key);
+  const HomeContent({Key? key, this.userProfile, this.DrivingStatistics})
+      : super(key: key);
 
   @override
   _HomeContentState createState() => _HomeContentState();
@@ -185,23 +226,32 @@ class _HomeContentState extends State<HomeContent> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.warning, color: Colors.red),
-              title: Text('Drowsiness Detected!'),
-              subtitle: Text('Please take a break.'),
-            ),
-          ),
-          SizedBox(height: 20),
           Text(
             'Driving Statistics',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
           Container(
-            height: 200,
-            color: Colors.grey[200],
-            child: Center(child: Text('Statistics Graph')),
+            width: double.infinity,
+            padding: EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Total Driving Time: ${widget.DrivingStatistics?['totalDrivingTime'] ?? 'N/A'} minutes',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Drowsiness Warnings: ${widget.DrivingStatistics?['drowsinessWarnings'] ?? 'N/A'}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 20),
           Text(
