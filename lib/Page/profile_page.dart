@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Center(
                     child: Text(
-                      'Profil',
+                      'Profile',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
@@ -119,25 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(height: 10), // Space between image and text
-                      Text(
-                        userProfile?['name'] ?? 'tidak',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18, // Adjust font size as needed
-                          color: Color.fromARGB(255, 0, 0, 0), // Color in hex
-                        ),
-                      ),
-                      Text(
-                        userProfile?['email'] ?? 'Loading...',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10, // Adjust font size as needed
-                          color:
-                              Color.fromARGB(255, 50, 50, 54), // Color in hex
-                        ),
-                      ),
+
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth *

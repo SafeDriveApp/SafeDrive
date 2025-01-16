@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:safe_drive/Page/email_verification_page.dart';
 import 'package:safe_drive/Page/profile_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -12,12 +11,9 @@ class UpdateProfilePage extends StatefulWidget {
 }
 
 class _UpdateProfilePageState extends State<UpdateProfilePage> {
-  String? _selectedItem; // Variabel untuk item yang dipilih
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
 
-  bool _isLoading = false; // Untuk menampilkan indikator loading
   final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   void initState() {
@@ -27,7 +23,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   Future<void> _loadUserProfile() async {
     setState(() {
-      _isLoading = true;
     });
 
     try {
@@ -54,7 +49,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       print("Error loading user profile: $e");
     } finally {
       setState(() {
-        _isLoading = false;
       });
     }
   }
@@ -135,7 +129,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   ),
                   Center(
                     child: Text(
-                      'Update Profil',
+                      'Update Profile',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,

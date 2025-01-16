@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:safe_drive/auth_service.dart';
 import 'package:safe_drive/Page/email_verification_page.dart';
-import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -23,9 +21,6 @@ class _SignupPageState extends State<SignupPage> {
       TextEditingController();
 
   Future<void> _register() async {
-    bool _isPasswordVisible = false;
-    bool _isConfirmPasswordVisible = false;
-
     String nama = _namaController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -42,23 +37,13 @@ class _SignupPageState extends State<SignupPage> {
     }
     if (password == confirmPassword) {
       try {
-        print("cek");
         await AuthService().register(email, password, nama);
-        // // Arahkan ke halaman login atau home setelah berhasil registrasi
-        // // Mengirim email verifikasi setelah registrasi berhasil
-        // User? user = FirebaseAuth.instance.currentUser;
-        // if (user != null && !user.emailVerified) {
-        //   await user.sendEmailVerification();
-        //   print("Email verifikasi telah dikirim.");
-        //   print("Masuk Ke Halaman Verifikasi");
-        //   // Arahkan ke halaman verifikasi email (EmailVerificationPage)
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => EmailVerificationPage()),
         );
 
       } catch (e) {
-        // Menampilkan pesan error jika terjadi kesalahan
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Registration failed: $e")),
         );
@@ -138,7 +123,7 @@ class _SignupPageState extends State<SignupPage> {
                       controller: _namaController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'odin',
+                        hintText: 'Your Name',
                       ),
                     ),
                     SizedBox(
@@ -149,7 +134,7 @@ class _SignupPageState extends State<SignupPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Odin@gmail.com',
+                        hintText: 'Your Email Address',
                       ),
                     ),
                     SizedBox(
@@ -161,7 +146,7 @@ class _SignupPageState extends State<SignupPage> {
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Password',
+                        hintText: 'Type Password',
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
