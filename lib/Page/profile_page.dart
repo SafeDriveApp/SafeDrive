@@ -71,38 +71,35 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         // Added SingleChildScrollView
         child: Padding(
-          padding: const EdgeInsets.all(1),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: screenHeight * 10 / 100),
-              Stack(
+              SizedBox(height: screenHeight * 0.05),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomePage()),
-                        ); // Navigate back to the previous page
-                      },
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
+                      ); // Navigate back to the previous page
+                    },
+                  ),
+                  Text(
+                    'Profile',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Color(0xFF272343),
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      'Profile',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Color(0xFF272343),
-                      ),
-                    ),
-                  ),
+                  SizedBox(width: 48), // Placeholder to balance the row
                 ],
               ),
               Center(
