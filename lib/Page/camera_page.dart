@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:io';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -21,6 +20,8 @@ class _CameraPageState extends State<CameraPage> {
   late Future<void> _initializeControllerFuture;
   bool _isRecording = false;
   Timer? _timer;
+  DateTime? _startTime;
+  Timer? _reminderTimer;
 
   @override
   void initState() {
@@ -38,6 +39,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void dispose() {
     _timer?.cancel();
+    _reminderTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -45,7 +47,7 @@ class _CameraPageState extends State<CameraPage> {
   Future<void> _uploadFrame(XFile frameFile) async {
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://192.168.1.15:5000/upload'),
+      Uri.parse('http://192.168.1.18:5000/upload'),
     );
     request.files.add(await http.MultipartFile.fromPath(
       'frame',
@@ -66,6 +68,8 @@ class _CameraPageState extends State<CameraPage> {
       if (prediction == '0') {
         final player = AudioPlayer();
         await player.play(AssetSource('alarm.mp3')); // Use AssetSource
+        await Future.delayed(
+            Duration(seconds: 2, milliseconds: 500)); // Delay 2.5 detik
       }
     } else {
       print('Upload failed with status: ${response.statusCode}');
@@ -75,6 +79,14 @@ class _CameraPageState extends State<CameraPage> {
   void _startRecording() async {
     setState(() {
       _isRecording = true;
+      _startTime = DateTime.now();
+    });
+
+    _reminderTimer = Timer.periodic(Duration(hours: 1), (timer) {
+      final elapsed = DateTime.now().difference(_startTime!);
+      if (elapsed.inHours >= 2 && (elapsed.inHours - 2) % 1 == 0) {
+        _showReminderDialog(elapsed.inHours);
+      }
     });
 
     while (_isRecording) {
@@ -89,28 +101,78 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  /* Debugging
+  void _startRecording() async {
+    setState(() {
+      _isRecording = true;
+      _startTime = DateTime.now();
+    });
+
+    _reminderTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      final elapsed = DateTime.now().difference(_startTime!);
+      if (elapsed.inSeconds >= 10 && (elapsed.inSeconds - 10) % 5 == 0) {
+        _showReminderDialog(elapsed.inSeconds ~/ 5);
+      }
+    });
+
+    while (_isRecording) {
+      try {
+        final XFile frameFile = await _controller.takePicture();
+        await _uploadFrame(frameFile);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+  */
+
   void _stopRecording() {
     setState(() {
       _isRecording = false;
     });
+    _reminderTimer?.cancel();
+  }
+
+  void _showReminderDialog(int hours) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Reminder'),
+          content: Text(
+              'You have been driving for $hours hours. Please take a break.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Camera Page'),
-      ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.rotationY(math.pi),
-                  child: CameraPreview(_controller),
+                Padding(
+                  padding:
+                      EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(math.pi),
+                    child: CameraPreview(_controller),
+                  ),
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
