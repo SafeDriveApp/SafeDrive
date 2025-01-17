@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert'; // for the utf8.encode method
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -18,7 +20,7 @@ class AuthService {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
-      //Menimpan ID User
+      // Menyimpan ID User
       await prefs.setString('userID', userId);
 
       return userCredential;
@@ -47,26 +49,28 @@ class AuthService {
         email: email,
         password: password,
       );
+
       // Kirim email verifikasi
       User? user = userCredential.user;
       if (user != null && !user.emailVerified) {
         await user.sendEmailVerification();
         print("Navigasi menuju halaman verifikasi email dijalankan");
-        // final emailpage = await _().emailpage();
       }
 
-      // Hash password jika perlu (gunakan bcrypt atau algoritma lain)
-      String passwordHash = password; // Gantilah dengan password hash
+      // Hash password menggunakan SHA-256
+      var bytes = utf8.encode(password); // data being hashed
+      var digest = sha256.convert(bytes);
 
-      // Menambahkan data pengguna baru ke Firestore
+      // Menambahkan data pengguna baru ke Firestore dengan UID sebagai document ID
       FirebaseFirestore firestore = FirebaseFirestore.instance;
       CollectionReference users = firestore.collection('users');
-      await users.add({
+      await users.doc(user!.uid).set({
         'name': name,
         'email': email,
-        'password_hash': passwordHash,
+        'password_hash': digest.toString(),
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
+        'emergencyContacts': [], // Inisialisasi field emergencyContacts
       });
       print('berhasil');
     } on FirebaseAuthException catch (e) {
@@ -132,6 +136,10 @@ class AuthService {
           await user.updatePassword(password);
         }
 
+        // Hash password menggunakan SHA-256
+        var bytes = utf8.encode(password); // data being hashed
+        var digest = sha256.convert(bytes);
+
         // Perbarui data di Firestore
         FirebaseFirestore firestore = FirebaseFirestore.instance;
         QuerySnapshot snapshot = await firestore
@@ -143,7 +151,7 @@ class AuthService {
           await snapshot.docs[0].reference.update({
             'name': name,
             'email': email,
-            'password_hash': password,
+            'password_hash': digest.toString(),
             'updated_at': FieldValue.serverTimestamp(),
           });
         }
