@@ -129,8 +129,7 @@ class _CameraPageState extends State<CameraPage> {
         .collection('users')
         .doc(userId)
         .collection('driving_statistics')
-        .doc('last_driving')
-        .set({
+        .add({
       'totalDrivingTime': _totalDrivingTime.inMinutes,
       'drowsinessWarnings': _drowsinessWarnings,
       'timestamp': FieldValue.serverTimestamp(),

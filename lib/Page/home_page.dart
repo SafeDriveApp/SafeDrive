@@ -74,16 +74,26 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchDrivingStatistics() async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .collection('driving_statistics')
-          .doc('last_driving')
           .get();
 
-      if (snapshot.exists) {
+      if (snapshot.docs.isNotEmpty) {
+        int totalDrivingTime = 0;
+        int totalDrowsinessWarnings = 0;
+
+        for (var doc in snapshot.docs) {
+          totalDrivingTime += (doc['totalDrivingTime'] ?? 0) as int;
+          totalDrowsinessWarnings += (doc['drowsinessWarnings'] ?? 0) as int;
+        }
+
         setState(() {
-          DrivingStatistics = snapshot.data() as Map<String, dynamic>;
+          DrivingStatistics = {
+            'totalDrivingTime': totalDrivingTime,
+            'drowsinessWarnings': totalDrowsinessWarnings,
+          };
           isLoadingStatistics = false;
         });
       } else {
@@ -92,7 +102,7 @@ class _HomePageState extends State<HomePage> {
         });
       }
     } catch (e) {
-      print("Error fetching last driving statistics: $e");
+      print("Error fetching driving statistics: $e");
       setState(() {
         isLoadingStatistics = false;
       });
