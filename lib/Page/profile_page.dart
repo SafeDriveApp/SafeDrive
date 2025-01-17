@@ -4,6 +4,7 @@ import 'package:safe_drive/Page/change_password_page.dart';
 import 'package:safe_drive/Page/home_page.dart';
 import 'package:safe_drive/Page/update_profile_page.dart';
 import 'package:safe_drive/Page/login_page.dart';
+import 'package:safe_drive/Page/update_emergency_contact_page.dart'; // Import halaman baru
 import 'package:safe_drive/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -222,6 +223,35 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     child: Text('Change Password'),
+                                  ),
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                SizedBox(
+                                  width:
+                                      200, // Match the width of the input form
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                UpdateEmergencyContactPage()), // Navigate to the new page
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color(0xFFFFD803), // Button color
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 20),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight:
+                                            FontWeight.w600, // Semi-bold
+                                        fontSize: 16,
+                                        color: Colors.black, // Text color
+                                      ),
+                                    ),
+                                    child: Text('Update Emergency Contact'),
                                   ),
                                 ),
                                 Padding(padding: EdgeInsets.all(5)),

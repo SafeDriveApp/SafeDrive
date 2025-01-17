@@ -6,6 +6,8 @@ import 'package:safe_drive/Page/camera_page.dart';
 import 'package:camera/camera.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,15 +21,18 @@ class _HomePageState extends State<HomePage> {
   late Future<List<CameraDescription>> _initializeCameraFuture;
   Map<String, dynamic>? userProfile;
   Map<String, dynamic>? DrivingStatistics;
+  List<Map<String, dynamic>> emergencyContacts = [];
   bool isLoadingProfile = true;
   bool isLoadingStatistics = true;
+  bool isLoadingContacts = true;
 
   @override
   void initState() {
     super.initState();
     _initializeCameraFuture = _initializeCamera();
-    _fetchUserProfile(); // Memuat profil pengguna
-    _fetchDrivingStatistics(); // Memuat statistik berkendara terakhir
+    _fetchUserProfile();
+    _fetchDrivingStatistics();
+    _fetchEmergencyContacts();
   }
 
   Future<List<CameraDescription>> _initializeCamera() async {
@@ -94,10 +99,50 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _fetchEmergencyContacts() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+        List<dynamic> contacts = data?['emergencyContacts'] ?? [];
+        setState(() {
+          emergencyContacts = contacts.map((contact) {
+            return {
+              'name': contact['name'] ?? '',
+              'number': contact['number'] ?? '',
+            };
+          }).toList();
+          isLoadingContacts = false;
+        });
+      } else {
+        setState(() {
+          isLoadingContacts = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching emergency contacts: $e");
+      setState(() {
+        isLoadingContacts = false;
+      });
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> _launchWhatsApp(String phoneNumber) async {
+    final Uri url = Uri.parse('https://wa.me/$phoneNumber');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   @override
@@ -109,7 +154,9 @@ class _HomePageState extends State<HomePage> {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               final cameras = snapshot.data!;
-              return isLoadingProfile || isLoadingStatistics
+              return isLoadingProfile ||
+                      isLoadingStatistics ||
+                      isLoadingContacts
                   ? Center(child: CircularProgressIndicator())
                   : _widgetOptions(cameras).elementAt(_selectedIndex);
             } else {
@@ -146,7 +193,10 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _widgetOptions(List<CameraDescription> cameras) => <Widget>[
         HomeContent(
-            userProfile: userProfile, DrivingStatistics: DrivingStatistics),
+            userProfile: userProfile,
+            DrivingStatistics: DrivingStatistics,
+            emergencyContacts: emergencyContacts,
+            refreshData: _fetchEmergencyContacts),
         CameraPage(cameras: cameras),
         ProfilePage(), // Placeholder for ProfilePage
       ];
@@ -155,8 +205,15 @@ class _HomePageState extends State<HomePage> {
 class HomeContent extends StatefulWidget {
   final Map<String, dynamic>? userProfile;
   final Map<String, dynamic>? DrivingStatistics;
+  final List<Map<String, dynamic>> emergencyContacts;
+  final Future<void> Function() refreshData;
 
-  const HomeContent({Key? key, this.userProfile, this.DrivingStatistics})
+  const HomeContent(
+      {Key? key,
+      this.userProfile,
+      this.DrivingStatistics,
+      required this.emergencyContacts,
+      required this.refreshData})
       : super(key: key);
 
   @override
@@ -171,6 +228,14 @@ class _HomeContentState extends State<HomeContent> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+  }
+
+  @override
+  void didUpdateWidget(HomeContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.emergencyContacts != oldWidget.emergencyContacts) {
+      widget.refreshData();
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -210,6 +275,13 @@ class _HomeContentState extends State<HomeContent> {
           LatLng(position.latitude, position.longitude),
         ),
       );
+    }
+  }
+
+  Future<void> _launchWhatsApp(String phoneNumber) async {
+    final Uri url = Uri.parse('https://wa.me/$phoneNumber');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
     }
   }
 
@@ -289,6 +361,22 @@ class _HomeContentState extends State<HomeContent> {
                     myLocationButtonEnabled: true,
                   ),
           ),
+          SizedBox(height: 20),
+          Text(
+            'Emergency Contacts',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          ...widget.emergencyContacts.map((contact) {
+            return Card(
+              child: ListTile(
+                leading: Icon(Icons.phone, color: Colors.green),
+                title: Text(contact['name'] ?? 'Unknown'),
+                subtitle: Text(contact['number'] ?? 'Unknown'),
+                onTap: () => _launchWhatsApp(contact['number'] ?? ''),
+              ),
+            );
+          }).toList(),
           SizedBox(height: 20),
           Text(
             'Safety Tips',
