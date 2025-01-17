@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:safe_drive/Page/profile_page.dart';
+import 'package:safe_drive/auth_service.dart';
+import 'package:safe_drive/Page/login_page.dart'; // Import LoginPage
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -12,7 +14,8 @@ class ChangePasswordPage extends StatefulWidget {
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -35,9 +38,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       await user.reauthenticateWithCredential(credential);
 
       // Check if new password and confirm password match
-      if (_newPasswordController.text.trim() != _confirmPasswordController.text.trim()) {
+      if (_newPasswordController.text.trim() !=
+          _confirmPasswordController.text.trim()) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('New password and confirm password do not match')),
+          SnackBar(
+              content: Text('New password and confirm password do not match')),
         );
         return;
       }
@@ -49,10 +54,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         SnackBar(content: Text('Password changed successfully')),
       );
 
-      // Navigate to profile page
+      // Sign out the user
+      await AuthService().logout();
+
+      // Navigate to login page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfilePage()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
