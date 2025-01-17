@@ -170,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               children: [
                                 SizedBox(
                                   width:
-                                      200, // Match the width of the input form
+                                      250, // Match the width of the input form
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
@@ -199,7 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Padding(padding: EdgeInsets.all(5)),
                                 SizedBox(
                                   width:
-                                      200, // Match the width of the input form
+                                      250, // Match the width of the input form
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
@@ -228,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Padding(padding: EdgeInsets.all(5)),
                                 SizedBox(
                                   width:
-                                      200, // Match the width of the input form
+                                      250, // Match the width of the input form
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
@@ -257,7 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Padding(padding: EdgeInsets.all(5)),
                                 SizedBox(
                                   width:
-                                      200, // Match the width of the input form
+                                      250, // Match the width of the input form
                                   child: ElevatedButton(
                                     onPressed: _signOut,
                                     style: ElevatedButton.styleFrom(

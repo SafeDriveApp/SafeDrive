@@ -41,6 +41,11 @@ class _UpdateEmergencyContactPageState
           _isLoading = false;
         });
       } else {
+        // Inisialisasi field emergencyContacts jika belum ada
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .set({'emergencyContacts': []}, SetOptions(merge: true));
         setState(() {
           _isLoading = false;
         });
