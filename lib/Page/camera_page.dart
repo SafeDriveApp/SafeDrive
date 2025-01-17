@@ -93,10 +93,13 @@ class _CameraPageState extends State<CameraPage> {
       _startTime = DateTime.now();
     });
 
-    _reminderTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+    _reminderTimer = Timer.periodic(Duration(minutes: 1), (timer) {
       final elapsed = DateTime.now().difference(_startTime!);
-      if (elapsed.inSeconds >= 10 && (elapsed.inSeconds - 10) % 5 == 0) {
-        _showReminderDialog(elapsed.inSeconds ~/ 5);
+      final elapsedHours = elapsed.inHours;
+
+      // Tampilkan reminder pada 2 jam pertama, lalu 3 jam, 4 jam, 5 jam, dst.
+      if (elapsedHours >= 2 && (elapsedHours == 2 || elapsedHours % 1 == 0)) {
+        _showReminderDialog(elapsedHours);
       }
     });
 
@@ -120,6 +123,41 @@ class _CameraPageState extends State<CameraPage> {
       }
     }
   }
+  
+  // Debugging
+  // void _startRecording() async {
+  //   setState(() {
+  //     _isRecording = true;
+  //     _startTime = DateTime.now();
+  //   });
+
+  //   _reminderTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+  //     final elapsed = DateTime.now().difference(_startTime!);
+  //     if (elapsed.inSeconds >= 10 && (elapsed.inSeconds - 10) % 5 == 0) {
+  //       _showReminderDialog(elapsed.inSeconds ~/ 5);
+  //     }
+  //   });
+
+  //   _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+  //     if (_isRecording) {
+  //       // Perbarui total waktu berkendara
+  //       setState(() {
+  //         _totalDrivingTime = DateTime.now().difference(_startTime!);
+  //       });
+  //     }
+  //   });
+
+  //   while (_isRecording) {
+  //     try {
+  //       final XFile frameFile = await _controller.takePicture();
+  //       await _uploadFrame(frameFile);
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Error: $e')),
+  //       );
+  //     }
+  //   }
+  // }
 
   Future<void> _saveDrivingStatistics() async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
