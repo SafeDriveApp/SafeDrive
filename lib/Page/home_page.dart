@@ -383,16 +383,21 @@ class _HomeContentState extends State<HomeContent> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
-          ...widget.emergencyContacts.map((contact) {
-            return Card(
-              child: ListTile(
-                leading: Icon(Icons.phone, color: Colors.green),
-                title: Text(contact['name'] ?? 'Unknown'),
-                subtitle: Text(contact['number'] ?? 'Unknown'),
-                onTap: () => _launchWhatsApp(contact['number'] ?? ''),
-              ),
-            );
-          }).toList(),
+          widget.emergencyContacts.isEmpty
+              ? Text(
+                  'There is no emergency contacts registered. Register your first emergency contacts from the profile menu.')
+              : Column(
+                  children: widget.emergencyContacts.map((contact) {
+                    return Card(
+                      child: ListTile(
+                        leading: Icon(Icons.phone, color: Colors.green),
+                        title: Text(contact['name'] ?? 'Unknown'),
+                        subtitle: Text(contact['number'] ?? 'Unknown'),
+                        onTap: () => _launchWhatsApp(contact['number'] ?? ''),
+                      ),
+                    );
+                  }).toList(),
+                ),
           SizedBox(height: 20),
           Text(
             'Safety Tips',
