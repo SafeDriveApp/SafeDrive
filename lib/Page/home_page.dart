@@ -132,7 +132,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
+    if (index == 0) {
+      // Fetch data when Home is tapped
+      setState(() {
+        isLoadingProfile = true;
+        isLoadingStatistics = true;
+        isLoadingContacts = true;
+      });
+      await _fetchUserProfile();
+      await _fetchDrivingStatistics();
+      await _fetchEmergencyContacts();
+    }
     setState(() {
       _selectedIndex = index;
     });
@@ -196,7 +207,11 @@ class _HomePageState extends State<HomePage> {
             userProfile: userProfile,
             DrivingStatistics: DrivingStatistics,
             emergencyContacts: emergencyContacts,
-            refreshData: _fetchEmergencyContacts),
+            refreshData: () async {
+              await _fetchUserProfile();
+              await _fetchDrivingStatistics();
+              await _fetchEmergencyContacts();
+            }),
         CameraPage(cameras: cameras),
         ProfilePage(), // Placeholder for ProfilePage
       ];
@@ -233,7 +248,8 @@ class _HomeContentState extends State<HomeContent> {
   @override
   void didUpdateWidget(HomeContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.emergencyContacts != oldWidget.emergencyContacts) {
+    if (widget.DrivingStatistics != oldWidget.DrivingStatistics ||
+        widget.emergencyContacts != oldWidget.emergencyContacts) {
       widget.refreshData();
     }
   }
